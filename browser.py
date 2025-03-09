@@ -54,7 +54,7 @@ def show(body):
          print(c, end="")
 
 def load(url):
-   body = url.request
+   body = url.request()
    show(body)
 
 if __name__ == "__main__":
