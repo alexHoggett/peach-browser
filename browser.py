@@ -5,7 +5,7 @@ class URL:
    def __init__(self, url):
       # scheme://host.org/path
       self.scheme, url = url.split("://", 1)
-      assert self.scheme in ["http", "https"]
+      assert self.scheme in ["http", "https", "file"]
 
       if "/" not in url:
          url = url + "/"
@@ -23,6 +23,10 @@ class URL:
          self.port = int(port)
 
    def request(self):
+      if self.scheme == "file":
+         with open(self.path[1:], 'r') as file:
+            return file.read()
+
       s = socket.socket(
          family=socket.AF_INET,
          type=socket.SOCK_STREAM,
@@ -34,9 +38,17 @@ class URL:
          ctx = ssl.create_default_context()
          s = ctx.wrap_socket(s, server_hostname=self.host)
 
-      request = "GET {} HTTP/1.0\r\n".format(self.path)
-      request += "Host: {}\r\n".format(self.host)
+      headers = {
+         'Host': self.host,
+         'Connection': 'close',
+         'User-Agent': 'shabib'
+      }
+
+      # Construct request
+      request = "GET {} HTTP/1.1\r\n".format(self.path)
+      request += "".join(f"{key}: {value}\r\n" for key, value in headers.items())
       request += "\r\n"
+
       s.send(request.encode("utf8"))
 
       response = s.makefile("r", encoding="utf8", newline="\r\n")
