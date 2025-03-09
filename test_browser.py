@@ -1,5 +1,5 @@
 import pytest
-from url import URL
+from browser import URL
 
 def test_valid_url():
    url = URL("http://example.com/path/somewhere")
