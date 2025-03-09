@@ -26,3 +26,5 @@ class URL:
       s.send(request.encode("utf8"))
 
       response = s.makefile("r", encoding="utf8", newline="\r\n")
+      statusline = response.readline()
+      version, status, explanation = statusline.split(" ", 2)
