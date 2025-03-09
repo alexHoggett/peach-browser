@@ -13,9 +13,11 @@ def test_valid_url_with_no_path():
     assert url.host == "example.com"
     assert url.path == "/"
 
-def test_invalid_scheme():
-    with pytest.raises(AssertionError):
-        URL("https://example.com/path")
+def test_valid_url_with_https():
+    url = URL("https://example.com")
+    assert url.scheme == "https"
+    assert url.host == "example.com"
+    assert url.path == "/"
 
 def test_missing_scheme():
     with pytest.raises(ValueError):  # Will raise an error if no scheme is provided
