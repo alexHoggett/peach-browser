@@ -1,5 +1,6 @@
 import socket
 import ssl
+import os
 
 class URL:
    def __init__(self, url):
@@ -87,6 +88,7 @@ if __name__ == "__main__":
    import sys
    if len(sys.argv) == 1:
       # No arguements so provide a default file
-      load(URL("file:///test-content/sample.txt"))
+      file_path = os.path.join(os.getcwd(), "test-content/sample.txt")
+      load(URL(f"file:///{file_path}"))
    else:
       load(URL(sys.argv[1]))

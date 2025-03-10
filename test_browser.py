@@ -2,6 +2,7 @@ import pytest
 from browser import URL
 from unittest.mock import patch, MagicMock
 from io import StringIO
+import subprocess
 
 @pytest.fixture
 def mock_http_socket():
@@ -83,3 +84,13 @@ def test_basic_https_response(mock_https_socket):
     assert body == "Hello, more secure world!"
     mock_https_socket.connect.assert_called_with(("example.com", 443))
     mock_https_socket.send.assert_called()
+
+def test_execution_with_no_args():
+    result = subprocess.run(
+        ["python3", "browser.py"],  # Replace with the actual script name
+        capture_output=True,
+        text=True
+    )
+
+    assert result.stdout.strip() == "hello world"
+    assert result.returncode == 0
