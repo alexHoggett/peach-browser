@@ -85,4 +85,8 @@ def load(url):
 
 if __name__ == "__main__":
    import sys
-   load(URL(sys.argv[1]))
+   if len(sys.argv) == 1:
+      # No arguements so provide a default file
+      load(URL("file:///test-content/sample.txt"))
+   else:
+      load(URL(sys.argv[1]))
