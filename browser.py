@@ -4,7 +4,29 @@ import os
 
 class URL:
    def __init__(self, url):
-      # scheme://host.org/path
+      # Handle data scheme first
+      if url.startswith("data:"):
+         self.scheme, rest = url.split(":", 1)
+         assert self.scheme == "data"
+
+         # Split into metadata (before ",") and data (after ",")
+         metadata, self.data = rest.split(",", 1)
+
+         # Check for optional base64 encoding
+         if ";base64" in metadata:
+               self.media_type, self.is_base64 = metadata.rsplit(";base64", 1)
+               self.is_base64 = True
+         else:
+               self.media_type = metadata
+               self.is_base64 = False
+
+         self.host = None
+         self.path = None
+         self.port = None
+         return
+
+      # Handle regular URL schemes (http, https, file)
+      # i.e. scheme://host.org/path
       self.scheme, url = url.split("://", 1)
       assert self.scheme in ["http", "https", "file"]
 
@@ -13,6 +35,7 @@ class URL:
       self.host, url = url.split("/", 1)
       self.path = "/" + url
 
+      # Set default ports for http/https
       if self.scheme == "http":
          self.port = 80
       elif self.scheme == "https":
@@ -27,6 +50,8 @@ class URL:
       if self.scheme == "file":
          with open(self.path[1:], 'r') as file:
             return file.read()
+      elif self.scheme == "data":
+         return self.data
 
       s = socket.socket(
          family=socket.AF_INET,
