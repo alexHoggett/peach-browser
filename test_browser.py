@@ -87,7 +87,7 @@ def test_basic_https_response(mock_https_socket):
 
 def test_execution_with_no_args():
     result = subprocess.run(
-        ["python3", "browser.py"],  # Replace with the actual script name
+        ["python3", "browser.py"],
         capture_output=True,
         text=True
     )
@@ -95,8 +95,12 @@ def test_execution_with_no_args():
     assert result.stdout.strip() == "hello world"
     assert result.returncode == 0
 
-# def test_basic_data_scheme():
+def test_basic_data_scheme():
+    url = URL("data:text/html,Hello world!")
+    body = url.request()
 
-
-    assert result.stdout.strip() == "hello world"
-    assert result.returncode == 0
+    assert url.host == None
+    assert url.path == None
+    assert url.port == None
+    assert url.scheme == "data"
+    assert body == "Hello world!"
