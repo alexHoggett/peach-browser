@@ -94,3 +94,9 @@ def test_execution_with_no_args():
 
     assert result.stdout.strip() == "hello world"
     assert result.returncode == 0
+
+# def test_basic_data_scheme():
+
+
+    assert result.stdout.strip() == "hello world"
+    assert result.returncode == 0
