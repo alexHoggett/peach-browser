@@ -104,3 +104,13 @@ def test_basic_data_scheme():
     assert url.port == None
     assert url.scheme == "data"
     assert body == "Hello world!"
+
+def test_basic_entities():
+    result = subprocess.run(
+        ["python3", "browser.py", "data:text/html,&lt;div&gt;"],
+        capture_output=True,
+        text=True
+    )
+
+    assert result.stdout.strip() == "<div>"
+    assert result.returncode == 0
