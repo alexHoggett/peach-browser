@@ -114,3 +114,11 @@ def test_basic_entities():
 
     assert result.stdout.strip() == "<div>"
     assert result.returncode == 0
+
+def test_basic_view_source_scheme():
+    url = URL("view-source:http://example.org/")
+    body = url.request()
+
+    assert url.scheme == "view-source:http"
+    assert url.host == "example.org"
+    assert url.path == "/"

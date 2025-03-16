@@ -28,7 +28,7 @@ class URL:
       # Handle regular URL schemes (http, https, file)
       # i.e. scheme://host.org/path
       self.scheme, url = url.split("://", 1)
-      assert self.scheme in ["http", "https", "file"]
+      assert self.scheme in ["http", "https", "file", "view-source:http"]
 
       if "/" not in url:
          url = url + "/"
@@ -36,7 +36,7 @@ class URL:
       self.path = "/" + url
 
       # Set default ports for http/https
-      if self.scheme == "http":
+      if self.scheme in ("view-source:http", "http"):
          self.port = 80
       elif self.scheme == "https":
          self.port = 443
