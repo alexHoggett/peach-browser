@@ -16,7 +16,7 @@ def mock_http_socket():
             "HTTP/1.0 200 OK\r\n"
             "Content-Length: 13\r\n"
             "\r\n"
-            "Hello, world!"
+            "<div>Hello, world!</div>"
         )
         mock_socket_instance.makefile.return_value = fake_response
 
@@ -41,7 +41,7 @@ def mock_https_socket():
             "HTTP/1.0 200 OK\r\n"
             "Content-Length: 13\r\n"
             "\r\n"
-            "Hello, more secure world!"
+            "<div>Hello, more secure world!</div>"
         )
         mock_socket_instance.makefile.return_value = fake_response
 
@@ -73,7 +73,7 @@ def test_basic_http_response(mock_http_socket):
     url = URL("http://example.com/path")
     body = url.request()
     
-    assert body == "Hello, world!"
+    assert body == "<div>Hello, world!</div>"
     mock_http_socket.send.assert_called()
     mock_http_socket.connect.assert_called_with(("example.com", 80))
 
@@ -81,9 +81,13 @@ def test_basic_https_response(mock_https_socket):
     url = URL("https://example.com/path")
     body = url.request()
     
-    assert body == "Hello, more secure world!"
+    assert body == "<div>Hello, more secure world!</div>"
     mock_https_socket.connect.assert_called_with(("example.com", 443))
     mock_https_socket.send.assert_called()
+
+def test_basic_custom_ports():
+    # To Do
+    assert True
 
 def test_execution_with_no_args():
     result = subprocess.run(
@@ -122,3 +126,11 @@ def test_basic_view_source_scheme():
     assert url.scheme == "view-source:http"
     assert url.host == "example.org"
     assert url.path == "/"
+
+def test_view_source_http_request(mock_http_socket):
+    url = URL("view-source:http://example.org/")
+    body = url.request()
+    
+    assert body == "<div>Hello, world!</div>"
+    mock_http_socket.send.assert_called()
+    mock_http_socket.connect.assert_called_with(("example.org", 80))

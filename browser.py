@@ -117,6 +117,10 @@ def show(body):
 
 def load(url):
    body = url.request()
+   if url.scheme == "view-source:http":
+      print(body)
+      return
+   
    show(body)
 
 if __name__ == "__main__":
