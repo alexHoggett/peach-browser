@@ -66,7 +66,7 @@ class URL:
 
       headers = {
          'Host': self.host,
-         'Connection': 'close',
+         'Connection': 'keep-alive',
          'User-Agent': 'shabib'
       }
 
@@ -77,25 +77,48 @@ class URL:
 
       s.send(request.encode("utf8"))
 
-      response = s.makefile("r", encoding="utf8", newline="\r\n")
-      statusline = response.readline()
-      version, status, explanation = statusline.split(" ", 2)
+      response = s.makefile("rb")
+      statusline = response.readline().strip()
+      # print(f"DEBUG: type={type(statusline)}, value={statusline}")
+      version, status, explanation = statusline.decode("utf8").split(" ", 2)
       response_headers = {}
       while True:
-         line = response.readline()
-         if line == "\r\n": break
-         header, value = line.split(":", 1)
+         line = response.readline().strip()
+
+         print(f"DEBUG: type={type(line)}, value={line}")
+
+         # if isinstance(line, bytes):
+         #    line = line.decode("utf8")
+
+         if line == b"": break
+
+         header, value = line.decode('utf8').split(":", 1)
          response_headers[header.casefold()] = value.strip()
+
+      # Get content length if present
+      content_length = int(response_headers.get("content-length", 0))
+      print(content_length)
 
       assert "transfer-encoding" not in response_headers
       assert "content-encoding" not in response_headers
 
-      content = response.read()
-      s.close()
+      # Read exactly Content-Length bytes
+      # content = s.recv(content_length) if content_length else b""
+      content = b""
+      if content_length:
+         while len(content) < content_length:
+            print('here')
+            chunk = s.recv(min(content_length - len(content), 1024))  # Read in chunks
+            if not chunk:
+                  break  # Connection closed prematurely
+            content += chunk
 
-      return content
+      # self.socket = s
+      s.close()
+      return content.decode('utf8')
    
 def show(body):
+   print('hello')
    in_tag = False
    in_entity = False
    entity = ""
