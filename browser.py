@@ -79,16 +79,10 @@ class URL:
 
       response = s.makefile("rb")
       statusline = response.readline().strip()
-      # print(f"DEBUG: type={type(statusline)}, value={statusline}")
       version, status, explanation = statusline.decode("utf8").split(" ", 2)
       response_headers = {}
       while True:
          line = response.readline().strip()
-
-         print(f"DEBUG: type={type(line)}, value={line}")
-
-         # if isinstance(line, bytes):
-         #    line = line.decode("utf8")
 
          if line == b"": break
 
@@ -97,24 +91,17 @@ class URL:
 
       # Get content length if present
       content_length = int(response_headers.get("content-length", 0))
-      print(content_length)
 
       assert "transfer-encoding" not in response_headers
       assert "content-encoding" not in response_headers
 
-      # Read exactly Content-Length bytes
-      # content = s.recv(content_length) if content_length else b""
       content = b""
-      if content_length:
-         while len(content) < content_length:
-            print('here')
-            chunk = s.recv(min(content_length - len(content), 1024))  # Read in chunks
-            if not chunk:
-                  break  # Connection closed prematurely
-            content += chunk
 
-      # self.socket = s
-      s.close()
+      if content_length:
+         content = response.read(content_length)
+
+      self.socket = s
+      # s.close()
       return content.decode('utf8')
    
 def show(body):
