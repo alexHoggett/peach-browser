@@ -1,26 +1,33 @@
 import pytest
 from browser import URL
 from unittest.mock import patch, MagicMock
-from io import StringIO
+from io import BytesIO
 import subprocess
 
 @pytest.fixture
 def mock_http_socket():
     with patch("socket.socket") as mock_socket_class:
-        # Mock socket instance
-        mock_socket_instance = MagicMock()
-        mock_socket_class.return_value = mock_socket_instance
+        # Create mock socket instance
+        mock_socket = MagicMock()
+        mock_socket_class.return_value = mock_socket
 
-        # Simulated HTTP response
-        fake_response = StringIO(
-            "HTTP/1.0 200 OK\r\n"
-            "Content-Length: 13\r\n"
-            "\r\n"
-            "<div>Hello, world!</div>"
-        )
-        mock_socket_instance.makefile.return_value = fake_response
+        # Create mock file-like object to simulate socket response
+        mock_file = MagicMock()
+        mock_file.readline.side_effect = [
+            b"HTTP/1.1 200 OK\r\n",  # Status line
+            b"Content-Length: 13\r\n",  # Header
+            b"\r\n",  # End of headers
+            b"<div>Hello, world</div>"  # Body content
+        ]
+        mock_file.read.return_value = b"<div>Hello, world!</div>"
+        
+        mock_socket.makefile.return_value = mock_file
 
-        yield mock_socket_instance
+        yield mock_socket  # Provide the mock socket to the test
+
+        # Cleanup (if needed)
+        mock_socket.close()
+
 
 @pytest.fixture
 def mock_https_socket():
@@ -34,15 +41,20 @@ def mock_https_socket():
         # Mock SSL context and wrap_socket
         mock_ssl_instance = MagicMock()
         mock_ssl_context.return_value = mock_ssl_instance
-        mock_ssl_instance.wrap_socket.return_value = mock_socket_instance  # Make sure wrap_socket returns our mock
+        mock_ssl_instance.wrap_socket.return_value = mock_socket_instance
 
-        # Simulated HTTPS response
-        fake_response = StringIO(
-            "HTTP/1.0 200 OK\r\n"
-            "Content-Length: 13\r\n"
-            "\r\n"
-            "<div>Hello, more secure world!</div>"
+        # Correct response body
+        response_body = b"<div>Hello, more secure world!</div>"
+        content_length = str(len(response_body)).encode("utf8")  # Ensure Content-Length is bytes
+
+        # Simulated HTTPS response (entire response is bytes)
+        fake_response = BytesIO(
+            b"HTTP/1.0 200 OK\r\n"
+            b"Content-Length: " + content_length + b"\r\n"
+            b"\r\n" +
+            response_body
         )
+
         mock_socket_instance.makefile.return_value = fake_response
 
         yield mock_socket_instance
