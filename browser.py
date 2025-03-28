@@ -105,7 +105,6 @@ class URL:
       return content.decode('utf8')
    
 def show(body):
-   print('hello')
    in_tag = False
    in_entity = False
    entity = ""
