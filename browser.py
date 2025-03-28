@@ -89,6 +89,17 @@ class URL:
          header, value = line.decode('utf8').split(":", 1)
          response_headers[header.casefold()] = value.strip()
 
+      # Check for a redirect
+      if status.startswith("3"):
+         location = response_headers.get("location")
+         
+         # Determine if the location is a full URL or relative
+         redirect_url = location if "http://" in location else f"{self.scheme}://{self.host}{location}"
+         redirect = URL(redirect_url)
+         
+         # Request the content from the redirect URL
+         return redirect.request()
+
       # Get content length if present
       content_length = int(response_headers.get("content-length", 0))
 
@@ -101,7 +112,6 @@ class URL:
          content = response.read(content_length)
 
       self.socket = s
-      # s.close()
       return content.decode('utf8')
    
 def show(body):
