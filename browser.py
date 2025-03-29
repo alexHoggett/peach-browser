@@ -107,9 +107,6 @@ class URL:
       is_gzip = response_headers.get("content-encoding") == "gzip"
       is_chunked = response_headers.get("transfer-encoding") == "chunked"
 
-      # Get content length if present
-      # content_length = int(response_headers.get("content-length", 0))
-
       content = b""
 
       if is_chunked:
