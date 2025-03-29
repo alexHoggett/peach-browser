@@ -1,6 +1,7 @@
 import socket
 import ssl
 import os
+import gzip
 
 class URL:
    def __init__(self, url):
@@ -53,6 +54,8 @@ class URL:
       elif self.scheme == "data":
          return self.data
 
+      # To-Do: Check if we already have a socket connection
+
       s = socket.socket(
          family=socket.AF_INET,
          type=socket.SOCK_STREAM,
@@ -67,7 +70,8 @@ class URL:
       headers = {
          'Host': self.host,
          'Connection': 'keep-alive',
-         'User-Agent': 'shabib'
+         'User-Agent': 'shabib',
+         'Accept-Encoding': 'gzip'
       }
 
       # Construct request
@@ -92,27 +96,45 @@ class URL:
       # Check for a redirect
       if status.startswith("3"):
          location = response_headers.get("location")
-         
          # Determine if the location is a full URL or relative
          redirect_url = location if "http://" in location else f"{self.scheme}://{self.host}{location}"
          redirect = URL(redirect_url)
          
          # Request the content from the redirect URL
          return redirect.request()
+      
+      # Check encoding methods
+      is_gzip = response_headers.get("content-encoding") == "gzip"
+      is_chunked = response_headers.get("transfer-encoding") == "chunked"
 
       # Get content length if present
-      content_length = int(response_headers.get("content-length", 0))
-
-      assert "transfer-encoding" not in response_headers
-      assert "content-encoding" not in response_headers
+      # content_length = int(response_headers.get("content-length", 0))
 
       content = b""
 
-      if content_length:
-         content = response.read(content_length)
+      if is_chunked:
+         # Read chunks until termination
+         print('chunked')
+         while True:
+            chunk_size = int(response.readline().strip(), 16)  # Read hex size
+            if chunk_size == 0:  
+                break  # End of chunks
+            chunk = response.read(chunk_size)  # Read chunk data
+            content += chunk
+            response.readline()  # Consume trailing CRLF
+
+      else:  # If not chunked, read by content-length
+         content_length = int(response_headers.get("content-length", 0))
+         if content_length:
+            content = response.read(content_length)
 
       self.socket = s
-      return content.decode('utf8')
+
+      # Decompress if gzip-encoded
+      if is_gzip:
+         content = gzip.decompress(content)
+
+      return content.decode("utf8")
    
 def show(body):
    in_tag = False
