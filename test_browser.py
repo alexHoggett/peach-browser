@@ -146,3 +146,5 @@ def test_view_source_http_request(mock_http_socket):
     assert body == "<div>Hello, world!</div>"
     mock_http_socket.send.assert_called()
     mock_http_socket.connect.assert_called_with(("example.org", 80))
+
+# Add tests for: keep-alive, compression
