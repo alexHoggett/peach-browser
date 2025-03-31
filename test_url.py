@@ -1,5 +1,5 @@
 import pytest
-from browser import URL
+from url import URL
 from unittest.mock import patch, MagicMock
 from io import BytesIO
 import subprocess
