@@ -103,7 +103,7 @@ def test_basic_custom_ports():
 
 def test_execution_with_no_args():
     result = subprocess.run(
-        ["python3", "browser.py"],
+        ["python3", "url.py"],
         capture_output=True,
         text=True
     )
@@ -123,7 +123,7 @@ def test_basic_data_scheme():
 
 def test_basic_entities():
     result = subprocess.run(
-        ["python3", "browser.py", "data:text/html,&lt;div&gt;"],
+        ["python3", "url.py", "data:text/html,&lt;div&gt;"],
         capture_output=True,
         text=True
     )
