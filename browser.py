@@ -27,7 +27,7 @@ def lex(body):
          text += c
    return text
 
-def layout(text):
+def layout(text, width):
    display_list = []
    cursor_x, cursor_y = HSTEP, VSTEP
    for c in text:
@@ -38,7 +38,7 @@ def layout(text):
          display_list.append((cursor_x, cursor_y, c))
          cursor_x += HSTEP
 
-      if cursor_x >= WIDTH - HSTEP:
+      if cursor_x >= width - HSTEP:
          cursor_y += VSTEP
          cursor_x = HSTEP
    return display_list
@@ -46,20 +46,25 @@ def layout(text):
 class Browser:
    def __init__(self):
       self.window = tkinter.Tk()
+
+      self.width = WIDTH
+      self.height = HEIGHT
+
       self.canvas = tkinter.Canvas(
          self.window,
-         width=WIDTH,
-         height=HEIGHT
+         width=self.width,
+         height=self.height
       )
-      self.canvas.pack()
+      self.canvas.pack(fill=tkinter.BOTH, expand=True)
       self.scroll = 0
       self.window.bind("<Down>", self.scrolldown)
       self.window.bind("<Up>", self.scrollup)
       self.window.bind("<MouseWheel>", self.scrollwheel)
+      self.window.bind("<Configure>", self.resize)
 
    def load(self, url):
-      text = lex(url.request())
-      self.display_list = layout(text)
+      self.text = lex(url.request())
+      self.display_list = layout(self.text, self.width)
       self.draw()
 
    def draw(self):
@@ -80,6 +85,15 @@ class Browser:
 
    def scrollwheel(self, e):
       self.scroll -= e.delta * 5
+      self.draw()
+
+   def resize(self, e):
+      # if self.canvas.winfo_width() == e.width and self.canvas.winfo_height() == e.height:
+      #   return  # Avoid unnecessary resizing
+      print('resizing')
+      print(e.width, e.height)
+      self.width, self.height = e.width, e.height
+      self.display_list = layout(self.text, self.width)
       self.draw()
 
       
