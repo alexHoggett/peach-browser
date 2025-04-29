@@ -69,7 +69,6 @@ class Browser:
       self.draw()
 
    def draw(self):
-      print(self.scroll)
       # Clear the canvas
       self.canvas.delete("all")
 
