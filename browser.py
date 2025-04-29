@@ -79,12 +79,12 @@ class Browser:
          self.canvas.create_text(x, y - self.scroll, text=c)
 
       # Draw thew scrollbar
-      content_height = max(y for x, y, c in self.display_list) + VSTEP
-      thumb_top = (self.scroll / content_height) * self.height
+      self.content_height = max(y for x, y, c in self.display_list) + VSTEP
+      thumb_top = (self.scroll / self.content_height) * self.height
       self.canvas.create_rectangle(self.width - 10, thumb_top, self.width, thumb_top + 40, fill="gray")
 
    def scrolldown(self, e):
-      self.scroll += SCROLL_STEP
+      self.scroll = min(self.scroll + SCROLL_STEP, self.content_height)
       self.draw()
 
    def scrollup(self, e):
