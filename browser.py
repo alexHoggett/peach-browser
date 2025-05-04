@@ -74,7 +74,7 @@ class Browser:
 
       # Draw text to the screen
       for x, y, c in self.display_list:
-         if y > self.scroll + HEIGHT: continue
+         if y > self.scroll + self.height: continue
          if y + VSTEP < self.scroll: continue
          self.canvas.create_text(x, y - self.scroll, text=c)
 
@@ -101,7 +101,6 @@ class Browser:
       self.width, self.height = e.width, e.height
       self.display_list = layout(self.text, self.width)
       self.draw()
-      print(self.width, self.height)
    
    def calculate_scrollbar(self):
        # Check if all content will fit on screen
@@ -112,8 +111,6 @@ class Browser:
          scrollbar_height = (self.height / self.content_height) * self.height
          # How much can the thumb travel
          track_range = self.height - scrollbar_height
-         print("track range", track_range)
-
          scrollbar_position = (self.scroll / (self.content_height - self.height)) * track_range
       
       return scrollbar_position, scrollbar_height
