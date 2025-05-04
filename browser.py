@@ -1,4 +1,4 @@
-import tkinter
+import tkinter as tk
 from url import URL
 
 WIDTH, HEIGHT = 800, 600
@@ -45,17 +45,17 @@ def layout(text, width):
 
 class Browser:
    def __init__(self):
-      self.window = tkinter.Tk()
+      self.window = tk.Tk()
 
       self.width = WIDTH
       self.height = HEIGHT
 
-      self.canvas = tkinter.Canvas(
+      self.canvas = tk.Canvas(
          self.window,
          width=self.width,
          height=self.height
       )
-      self.canvas.pack(fill=tkinter.BOTH, expand=True)
+      self.canvas.pack(fill=tk.BOTH, expand=True)
       self.scroll = 0
 
       self.window.bind("<Down>", self.scrolldown)
@@ -71,6 +71,9 @@ class Browser:
    def draw(self):
       # Clear the canvas
       self.canvas.delete("all")
+
+      self.emoji = tk.PhotoImage(file="emojis/1F1F5-1F1F8.png")
+      self.canvas.create_image(20, 20, image=self.emoji)
 
       # Draw text to the screen
       for x, y, c in self.display_list:
@@ -123,4 +126,4 @@ if __name__ == "__main__":
    else:
       Browser().load(URL(sys.argv[1]))
 
-   tkinter.mainloop()
+   tk.mainloop()
