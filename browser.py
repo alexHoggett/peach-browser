@@ -80,11 +80,14 @@ class Browser:
 
       # Draw thew scrollbar
       self.content_height = max(y for x, y, c in self.display_list) + VSTEP
-      thumb_top = (self.scroll / self.content_height) * self.height
-      self.canvas.create_rectangle(self.width - 10, thumb_top, self.width, thumb_top + 40, fill="gray")
+      
+      scrollbar_position, scrollbar_height = self.calculate_scrollbar()
+
+      self.canvas.create_rectangle(self.width - 10, scrollbar_position, self.width, scrollbar_position + scrollbar_height, fill="gray")
+      
 
    def scrolldown(self, e):
-      self.scroll = min(self.scroll + SCROLL_STEP, self.content_height)
+      self.scroll = min(self.scroll + SCROLL_STEP, self.content_height + 40)
       self.draw()
 
    def scrollup(self, e):
@@ -100,7 +103,21 @@ class Browser:
       self.width, self.height = e.width, e.height
       self.display_list = layout(self.text, self.width)
       self.draw()
+      print(self.width, self.height)
+   
+   def calculate_scrollbar(self):
+       # Check if all content will fit on screen
+      if self.content_height <= self.height:
+         scrollbar_height = self.height
+         scrollbar_position = 0
+      else:
+         scrollbar_height = (self.height / self.content_height) * self.height
+         # How much can the thumb travel
+         track_range = self.height - scrollbar_height
 
+         scrollbar_position = (self.scroll / (self.content_height - self.height)) * track_range
+      
+      return scrollbar_position, scrollbar_height
       
 if __name__ == "__main__":
    import sys
